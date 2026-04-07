@@ -3,7 +3,7 @@
 
 import os
 import sys
-import math
+import maths
 
 
 def main() -> None:
