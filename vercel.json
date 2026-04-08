@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm --prefix sliitui ci && python -m pip install -r requirements.txt",
+  "installCommand": "npm --prefix sliitui ci",
   "buildCommand": "npm --prefix sliitui run build && python backend/manage.py collectstatic --noinput --settings=config.settings.production",
   "outputDirectory": "sliitui/dist",
   "functions": {
