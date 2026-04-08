@@ -33,9 +33,7 @@ class AnalyticsEventCreateView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        if not request.session.session_key:
-            request.session.create()
+        session_key = getattr(request.session, "session_key", "") or ""
 
         forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "")
         ip_address = forwarded_for.split(",", 1)[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "")
@@ -47,7 +45,7 @@ class AnalyticsEventCreateView(generics.GenericAPIView):
             referrer=serializer.validated_data.get("referrer", "")[:500],
             document=serializer.validated_data.get("document"),
             user=request.user if request.user.is_authenticated else None,
-            session_key=request.session.session_key or "",
+            session_key=session_key,
             user_agent=request.META.get("HTTP_USER_AGENT", "")[:512],
             ip_hash=AnalyticsEvent.make_ip_hash(ip_address),
         )
@@ -108,4 +106,3 @@ class AnalyticsSummaryView(generics.GenericAPIView):
             },
             status=status.HTTP_200_OK,
         )
-

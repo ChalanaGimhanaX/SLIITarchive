@@ -101,7 +101,7 @@ export default function Home() {
           <div className="space-y-2">
             <h2 className="text-4xl font-semibold text-on-surface tracking-tighter">Browse by Faculty</h2>
             <p className="text-secondary max-w-md">
-              Explore the public archive through the academic structure already managed inside Django.
+              Explore the public archive through the academic structure.
             </p>
           </div>
         </div>

@@ -16,6 +16,7 @@ for env_path in (BASE_DIR / ".env", BASE_DIR.parent / ".env"):
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-secret-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_ENV"))
 
 
 def env_flag(name: str, default: bool) -> bool:
@@ -86,11 +87,12 @@ WSGI_APPLICATION = "config.wsgi.app"
 ASGI_APPLICATION = "config.asgi.application"
 
 database_url = os.getenv("DATABASE_URL")
+default_conn_max_age = "0" if IS_VERCEL else "60"
 if database_url:
     DATABASES = {
         "default": dj_database_url.parse(
             database_url,
-            conn_max_age=int(os.getenv("DJANGO_DB_CONN_MAX_AGE", "60")),
+            conn_max_age=int(os.getenv("DJANGO_DB_CONN_MAX_AGE", default_conn_max_age)),
         )
     }
 else:
@@ -147,8 +149,12 @@ GOOGLE_OAUTH_CLIENT_ID = os.getenv(
 GOOGLE_ANALYTICS_MEASUREMENT_ID = os.getenv("VITE_GA_MEASUREMENT_ID", "").strip()
 
 SESSION_COOKIE_NAME = "sliit_sessionid"
+SESSION_ENGINE = os.getenv(
+    "DJANGO_SESSION_ENGINE",
+    "django.contrib.sessions.backends.signed_cookies" if IS_VERCEL else "django.contrib.sessions.backends.db",
+)
 SESSION_COOKIE_AGE = int(os.getenv("DJANGO_SESSION_COOKIE_AGE", str(60 * 60 * 24 * 14)))
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = env_flag("DJANGO_SESSION_SAVE_EVERY_REQUEST", False)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = os.getenv("DJANGO_SESSION_COOKIE_SAMESITE", "Lax")
 SESSION_COOKIE_SECURE = env_flag("DJANGO_SESSION_COOKIE_SECURE", not DEBUG)
