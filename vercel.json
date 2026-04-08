@@ -1,12 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm --prefix sliitui ci",
-  "buildCommand": "npm --prefix sliitui run build && pip3 install -r requirements.txt && python3 backend/manage.py collectstatic --noinput --settings=config.settings.production",
+  "buildCommand": "npm --prefix sliitui run build && python3 -m venv .vercel-build-venv && . .vercel-build-venv/bin/activate && pip install -r requirements.txt && python backend/manage.py collectstatic --noinput --settings=config.settings.production",
   "outputDirectory": "sliitui/dist",
   "functions": {
     "api/**/*.py": {
       "maxDuration": 30,
-      "excludeFiles": "{.git/**,.venv/**,backend/dev.sqlite3,backend/local.sqlite3,backend/test.sqlite3,backend/test-media/**,backend/media-local/**,docs/**,sliitui/node_modules/**,sliitui/dist/**}"
+      "excludeFiles": "{.git/**,.venv/**,.vercel-build-venv/**,backend/dev.sqlite3,backend/local.sqlite3,backend/test.sqlite3,backend/test-media/**,backend/media-local/**,docs/**,sliitui/node_modules/**,sliitui/dist/**}"
     }
   },
   "routes": [
