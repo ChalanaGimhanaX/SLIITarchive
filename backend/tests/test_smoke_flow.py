@@ -1,8 +1,10 @@
 import hashlib
+import time
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -207,6 +209,25 @@ class SmokeFlowTests(APITestCase):
         me_response = self.client.get(reverse("session-me"))
         self.assertEqual(me_response.status_code, 200)
         self.assertEqual(me_response.data["email"], "student@sliit.local")
+
+    @override_settings(SESSION_ACTIVITY_REFRESH_SECONDS=0)
+    def test_authenticated_activity_refreshes_session_cookie(self):
+        self.client.get(reverse("session-csrf"))
+        login_response = self.client.post(
+            reverse("session-login"),
+            {"email": "student@sliit.local", "password": "demo12345"},
+            format="json",
+        )
+        self.assertEqual(login_response.status_code, 200)
+
+        initial_cookie = self.client.cookies["sliit_sessionid"].value
+
+        with patch("config.middleware.time.time", return_value=time.time() + 10):
+            me_response = self.client.get(reverse("session-me"))
+
+        self.assertEqual(me_response.status_code, 200)
+        self.assertIn("sliit_sessionid", me_response.cookies)
+        self.assertNotEqual(me_response.cookies["sliit_sessionid"].value, initial_cookie)
 
     def test_analytics_event_and_summary_endpoint(self):
         event_response = self.client.post(

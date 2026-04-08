@@ -62,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "config.middleware.SessionActivityMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -151,9 +152,12 @@ GOOGLE_ANALYTICS_MEASUREMENT_ID = os.getenv("VITE_GA_MEASUREMENT_ID", "").strip(
 SESSION_COOKIE_NAME = "sliit_sessionid"
 SESSION_ENGINE = os.getenv(
     "DJANGO_SESSION_ENGINE",
-    "django.contrib.sessions.backends.signed_cookies" if IS_VERCEL else "django.contrib.sessions.backends.db",
+    "django.contrib.sessions.backends.signed_cookies",
 )
 SESSION_COOKIE_AGE = int(os.getenv("DJANGO_SESSION_COOKIE_AGE", str(60 * 60 * 24 * 14)))
+SESSION_ACTIVITY_REFRESH_SECONDS = int(
+    os.getenv("DJANGO_SESSION_ACTIVITY_REFRESH_SECONDS", str(min(5 * 60, SESSION_COOKIE_AGE)))
+)
 SESSION_SAVE_EVERY_REQUEST = env_flag("DJANGO_SESSION_SAVE_EVERY_REQUEST", False)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = os.getenv("DJANGO_SESSION_COOKIE_SAMESITE", "Lax")

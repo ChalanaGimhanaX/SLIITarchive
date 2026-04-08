@@ -65,6 +65,7 @@ class SessionLoginView(generics.GenericAPIView):
 
         auth_login(request, user)
         request.session.cycle_key()
+        request.session.set_expiry(settings.SESSION_COOKIE_AGE)
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 
@@ -168,6 +169,7 @@ class SessionGoogleLoginView(generics.GenericAPIView):
 
         auth_login(request, user)
         request.session.cycle_key()
+        request.session.set_expiry(settings.SESSION_COOKIE_AGE)
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 
