@@ -21,7 +21,17 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 def env_flag(name: str, default: bool) -> bool:
     return os.getenv(name, str(default)).strip().lower() == "true"
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
+
+def env_list(name: str) -> list[str]:
+    return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
+
+
+allowed_hosts = env_list("DJANGO_ALLOWED_HOSTS")
+vercel_url = os.getenv("VERCEL_URL", "").strip()
+if vercel_url:
+    allowed_hosts.extend([vercel_url, ".vercel.app"])
+
+ALLOWED_HOSTS = list(dict.fromkeys(allowed_hosts))
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -72,7 +82,7 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.app"
 ASGI_APPLICATION = "config.asgi.application"
 
 database_url = os.getenv("DATABASE_URL")

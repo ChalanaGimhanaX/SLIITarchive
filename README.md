@@ -89,3 +89,20 @@ Sliit_database/
 ## Blueprint
 
 The detailed execution plan lives in [`docs/IMPLEMENTATION_BLUEPRINT.md`](/c:/Users/Chalana/Documents/Sliit_database/docs/IMPLEMENTATION_BLUEPRINT.md).
+
+## Vercel Deployment
+
+Deploy the repository root on Vercel, not the `sliitui` folder by itself. The root [`vercel.json`](/c:/Users/Chalana/Documents/Sliit_database/vercel.json) builds the Vite frontend from `sliitui`, exposes the Django backend through root `api` functions, and falls back non-API routes to the SPA entrypoint.
+
+Minimum production environment variables:
+
+- `DJANGO_SECRET_KEY`
+- `DATABASE_URL`
+
+Recommended environment variables:
+
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CORS_ALLOWED_ORIGINS` if the frontend is hosted on a different origin
+- `CLOUDFLARE_R2_*` values if you want persistent file uploads on Vercel
+
+The frontend defaults to same-origin API calls in production, so the public API remains available at `/api/v1/...` when deployed through the root project.

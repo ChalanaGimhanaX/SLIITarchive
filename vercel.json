@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix sliitui ci && python -m pip install -r requirements.txt",
+  "buildCommand": "npm --prefix sliitui run build && python backend/manage.py collectstatic --noinput --settings=config.settings.production",
+  "outputDirectory": "sliitui/dist",
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{.git/**,.venv/**,backend/dev.sqlite3,backend/local.sqlite3,backend/test.sqlite3,backend/test-media/**,backend/media-local/**,docs/**,sliitui/node_modules/**,sliitui/dist/**}"
+    }
+  },
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
