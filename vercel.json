@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm --prefix sliitui ci",
-  "buildCommand": "npm --prefix sliitui run build && python3 -m venv .vercel-build-venv && . .vercel-build-venv/bin/activate && pip install -r requirements.txt && python backend/manage.py migrate --noinput --settings=config.settings.production && python backend/manage.py collectstatic --noinput --settings=config.settings.production",
+  "buildCommand": "bash build.sh",
   "outputDirectory": "sliitui/dist",
   "functions": {
     "api/**/*.py": {
