@@ -167,7 +167,7 @@ class SessionGoogleLoginView(generics.GenericAPIView):
             user.full_name = full_name
             user.save(update_fields=["full_name"])
 
-        auth_login(request, user)
+        auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         request.session.cycle_key()
         request.session.set_expiry(settings.SESSION_COOKIE_AGE)
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
