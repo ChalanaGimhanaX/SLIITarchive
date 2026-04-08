@@ -41,13 +41,13 @@ class AnalyticsEventCreateView(generics.GenericAPIView):
         AnalyticsEvent.objects.create(
             event_type=serializer.validated_data["event_type"],
             path=serializer.validated_data.get("path", "")[:255],
-            visitor_id=serializer.validated_data["visitor_id"],
+            visitor_id=serializer.validated_data["visitor_id"][:64],
             referrer=serializer.validated_data.get("referrer", "")[:500],
             document=serializer.validated_data.get("document"),
             user=request.user if request.user.is_authenticated else None,
-            session_key=session_key,
+            session_key=session_key[:40],
             user_agent=request.META.get("HTTP_USER_AGENT", "")[:512],
-            ip_hash=AnalyticsEvent.make_ip_hash(ip_address),
+            ip_hash=AnalyticsEvent.make_ip_hash(ip_address)[:64],
         )
 
         return Response(status=status.HTTP_201_CREATED)
