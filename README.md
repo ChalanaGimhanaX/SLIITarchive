@@ -1,108 +1,102 @@
-# SLIIT Uni Archive Platform
+# SLIIT Archive
 
-A community-driven archive for SLIIT past papers, lecture notes, tutorials, and other study material. The platform is designed around a Django backend, a modern SPA frontend, PostgreSQL full-text search, and an approval workflow so public search stays clean and trustworthy.
+Community archive platform for SLIIT study material, past papers, lecture notes, tutorials, and related academic resources.
 
-## Product Goals
+The project combines a Django REST backend with a React and TypeScript frontend. It is designed around searchable approved documents, authenticated uploads, moderation workflows, analytics, and storage that can run locally or with Cloudflare R2.
 
-- Make it easy for students to discover academic resources by module, document type, and keyword.
-- Keep moderation lightweight by leaning on Django Admin instead of building a custom back office too early.
-- Support deep search inside uploaded PDFs through asynchronous text extraction.
-- Stay cost-conscious by using PostgreSQL native search and Cloudflare R2 instead of a heavier search/storage stack.
+## Features
 
-## Recommended Stack
+- Public document discovery with module, document-type, and keyword search
+- Student upload flow with authentication
+- Moderation queue for approving, rejecting, and reprocessing documents
+- Django Admin support for operational review
+- PDF text extraction through Celery tasks
+- PostgreSQL full-text search support
+- Analytics for visitors, page views, downloads, users, and popular documents
+- React frontend with dashboard, search, admin, support, privacy, and upload pages
+- Vercel-ready root deployment shape for frontend and API routes
 
-- Backend: Django, Django REST Framework, SimpleJWT
-- Database: PostgreSQL
-- Search: PostgreSQL `SearchVectorField` + `GIN` indexes
-- Background jobs: Celery + Redis
-- File storage: Cloudflare R2 through `django-storages` and `boto3`
-- Frontend: React + Vite + TypeScript
-- Observability: Sentry, structured logging
-- API docs: OpenAPI / Swagger
+## Technology
 
-## Target Repository Structure
+| Area | Stack |
+| --- | --- |
+| Backend | Django, Django REST Framework, SimpleJWT |
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| Search | PostgreSQL full-text search |
+| Jobs | Celery, Redis |
+| Storage | Local media or Cloudflare R2 through `django-storages` |
+| API docs | drf-spectacular / OpenAPI |
+
+## Repository Structure
 
 ```text
-Sliit_database/
-|-- backend/
-|   |-- config/
-|   |-- apps/
-|   |   |-- accounts/
-|   |   |-- taxonomy/
-|   |   |-- documents/
-|   |   `-- moderation/
-|   |-- requirements/
-|   |-- manage.py
-|   `-- .env.example
-|-- frontend/
-|   |-- src/
-|   |   |-- api/
-|   |   |-- components/
-|   |   |-- features/
-|   |   |-- pages/
-|   |   |-- routes/
-|   |   `-- lib/
-|   |-- public/
-|   `-- .env.example
-|-- docs/
-|   `-- IMPLEMENTATION_BLUEPRINT.md
-|-- docker-compose.yml
-`-- README.md
+backend/           # Django project, apps, API routes, Celery setup
+sliitui/           # React and TypeScript frontend
+api/               # Vercel API entrypoints
+docs/              # Implementation notes and blueprint
+docker-compose.yml # Local service dependencies
+vercel.json        # Root deployment config
 ```
 
-## Delivery Strategy
+Core Django apps:
 
-### MVP
+- `accounts` - users, roles, JWT auth, profile endpoints
+- `taxonomy` - faculties, degrees, modules, and document classification
+- `documents` - uploads, approved document search, user document views
+- `moderation` - review queue, actions, reports, logs
+- `analytics` - event tracking and dashboard summaries
 
-- Custom user model with role support
-- Taxonomy management for faculties, degrees, and modules
-- PDF upload flow to Cloudflare R2
-- Celery-based PDF text extraction
-- Moderation queue in Django Admin
-- Public search across approved documents only
-- User dashboard for upload history and status
+## Local Development
 
-### V2
+Install backend dependencies:
 
-- Duplicate detection UI
-- Report/flag content flow
-- Preview thumbnails or first-page previews
-- Search suggestions and popularity ranking
-- Auto-suggest module tags from extracted text
-- Notifications for approval or rejection
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Core Decisions
+Run Django:
 
-- Use Django Admin as the first moderation interface to reduce custom dashboard work.
-- Use PostgreSQL full-text search before considering Elasticsearch or Meilisearch.
-- Keep module tagging manual for MVP, but support automatic module suggestions later.
-- Restrict public discovery to approved documents only.
+```bash
+cd backend
+python manage.py migrate
+python manage.py runserver
+```
 
-## What This Repo Needs Next
+Run the frontend:
 
-1. Scaffold the backend Django project and apps.
-2. Scaffold the React frontend with routing and a shared API client.
-3. Set up PostgreSQL, Redis, and local development via Docker Compose.
-4. Implement the models and migrations described in [`docs/IMPLEMENTATION_BLUEPRINT.md`](/c:/Users/Chalana/Documents/Sliit_database/docs/IMPLEMENTATION_BLUEPRINT.md).
-5. Build the upload, processing, moderation, and search flows in that order.
+```bash
+cd sliitui
+npm install
+npm run dev
+```
 
-## Blueprint
+## Environment
 
-The detailed execution plan lives in [`docs/IMPLEMENTATION_BLUEPRINT.md`](/c:/Users/Chalana/Documents/Sliit_database/docs/IMPLEMENTATION_BLUEPRINT.md).
+Start from the sample files:
 
-## Vercel Deployment
+- `.env.example`
+- `backend/.env.example`
+- `sliitui/.env.example`
 
-Deploy the repository root on Vercel, not the `sliitui` folder by itself. The root [`vercel.json`](/c:/Users/Chalana/Documents/Sliit_database/vercel.json) builds the Vite frontend from `sliitui`, exposes the Django backend through root `api` functions, and falls back non-API routes to the SPA entrypoint.
+Minimum local values usually include a Django secret key, database configuration, allowed hosts, CORS origins, and frontend API base URL.
+
+## Deployment Notes
+
+Deploy the repository root on Vercel, not only the `sliitui` folder. The root `vercel.json` builds the Vite frontend from `sliitui`, exposes Django through root API functions, and falls back non-API routes to the SPA entrypoint.
 
 Minimum production environment variables:
 
 - `DJANGO_SECRET_KEY`
 - `DATABASE_URL`
 
-Recommended environment variables:
+Recommended production variables:
 
 - `DJANGO_ALLOWED_HOSTS`
-- `DJANGO_CORS_ALLOWED_ORIGINS` if the frontend is hosted on a different origin
-- `CLOUDFLARE_R2_*` values if you want persistent file uploads on Vercel
+- `DJANGO_CORS_ALLOWED_ORIGINS`
+- `CLOUDFLARE_R2_*` values for persistent file uploads
 
-The frontend defaults to same-origin API calls in production, so the public API remains available at `/api/v1/...` when deployed through the root project.
+## Documentation
+
+The detailed implementation plan is in [docs/IMPLEMENTATION_BLUEPRINT.md](docs/IMPLEMENTATION_BLUEPRINT.md).
